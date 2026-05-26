@@ -8,8 +8,13 @@ const SafeImage = ({ src, alt, className, ...props }) => {
 
     const getProcessedSrc = (url) => {
         if (!url) return fallbackImage;
-        
+
         try {
+            // Handle if url is already a relative proxy URL
+            if (typeof url === 'string' && url.startsWith('/api/upload/gdrive/')) {
+                return url;
+            }
+
             // Check if it's a Google Drive URL
             if (url.includes('drive.google.com')) {
                 // Extract the file ID from formats like:
@@ -25,9 +30,10 @@ const SafeImage = ({ src, alt, className, ...props }) => {
                 }
 
                 if (fileId) {
-                    // Convert to reliable thumbnail direct link
-                    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+                    // Convert to secure same-origin backend proxy route
+                    return `/api/upload/gdrive/${fileId}`;
                 }
+                return url;
             }
         } catch (e) {
             console.error("Error processing image URL:", url, e);
